@@ -128,6 +128,18 @@
     .atom .ok { color: var(--green); }
     .help { color: var(--muted); font-size: 12px; line-height: 2; margin: 0; }
     footer { text-align: center; color: #77737a; padding: 22px 12px 28px; font-size: 11px; }
+    .input-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .input-tools button { min-height:40px; }
+    .detail-box { margin-top:14px; padding:14px; border:1px solid var(--line); border-radius:12px; background:var(--atom-bg); line-height:2; }
+    .detail-box[hidden] { display:none; }
+    .history-list { display:grid; gap:8px; padding:0; margin:0; list-style:none; }
+    .history-item { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--atom-bg); }
+    .history-equation { direction:ltr; text-align:left; overflow-wrap:anywhere; font-family:Consolas,monospace; }
+    .history-item button { min-height:34px; padding:6px 10px; }
+    .feature-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; }
+    .feature { border:1px solid var(--line); border-radius:12px; padding:13px; background:var(--atom-bg); }
+    .feature b { color:var(--gold); display:block; margin-bottom:4px; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
     @media (max-width: 600px) {
       header { padding-top: 35px; }
       .input-row { flex-direction: column; }
@@ -156,7 +168,16 @@
         <button class="example" data-eq="H2 + O2 -> H2O">H₂ + O₂</button>
         <button class="example" data-eq="Al + HCl -> AlCl3 + H2">Al + HCl</button>
         <button class="example" data-eq="Ca(OH)2 + H3PO4 -> Ca3(PO4)2 + H2O">Ca(OH)₂</button>
+        <button class="example" data-eq="C2H6 + O2 -> CO2 + H2O">احتراق اتان</button>
+        <button class="example" data-eq="KClO3 -> KCl + O2">تجزیه KClO₃</button>
+        <button class="example" data-eq="FeS2 + O2 -> Fe2O3 + SO2">FeS₂</button>
+        <button class="example" data-eq="Na3PO4 + MgCl2 -> NaCl + Mg3(PO4)2">رسوب‌گیری</button>
       </div>
+      <div class="input-tools">
+        <button class="secondary" id="clearBtn" type="button">پاک کردن ورودی</button>
+        <button class="secondary" id="detailBtn" type="button" disabled>نمایش جزئیات حل</button>
+      </div>
+      <div id="solveDetails" class="detail-box" hidden></div>
     </section>
 
     <section class="card" aria-live="polite">
@@ -175,12 +196,28 @@
     </section>
 
     <section class="card">
+      <h2 class="section-title" id="historyTitle">تاریخچه واکنش‌ها</h2>
+      <ul id="historyList" class="history-list"><li class="help">واکنش‌های موازنه‌شده اخیر اینجا ذخیره می‌شوند.</li></ul>
+      <div class="input-tools"><button class="secondary" id="clearHistoryBtn" type="button">پاک کردن تاریخچه</button></div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title" id="featuresTitle">امکانات حرفه‌ای</h2>
+      <div class="feature-grid" id="featureGrid">
+        <div class="feature"><b>محاسبات دقیق</b><p class="help">استفاده از محاسبات کسری دقیق برای یافتن ضرایب صحیح.</p></div>
+        <div class="feature"><b>کنترل خودکار</b><p class="help">شمارش دوباره اتم‌ها و تأیید برابری دو طرف واکنش.</p></div>
+        <div class="feature"><b>تاریخچه محلی</b><p class="help">دسترسی دوباره به واکنش‌های اخیر در همین مرورگر.</p></div>
+        <div class="feature"><b>حریم خصوصی</b><p class="help">واکنش‌ها در مرورگر پردازش می‌شوند و به سرور ارسال نمی‌شوند.</p></div>
+      </div>
+    </section>
+
+    <section class="card">
       <h2 class="section-title">راهنمای وارد کردن واکنش</h2>
       <p class="help" id="guideText">
         • نماد عناصر را با حروف لاتین وارد کن؛ مثل H2O یا NaCl.<br>
         • بین مواد علامت + و بین دو طرف واکنش یکی از علامت‌های → ، -&gt; یا = بگذار.<br>
         • پرانتزهای فرمول مانند Ca(OH)2 پشتیبانی می‌شوند.<br>
-        • بار یونی، آب‌پوش‌ها و نیم‌واکنش‌های اکسایش‌کاهش در این نسخه پشتیبانی نمی‌شوند.
+        • بیشتر واکنش‌های معمول مولکولی پشتیبانی می‌شوند؛ بار یونی، آب‌پوش‌ها و نیم‌واکنش‌های اکسایش‌کاهش هنوز پشتیبانی نمی‌شوند.
       </p>
     </section>
 
@@ -200,7 +237,7 @@
     <section class="card">
       <h2 class="section-title" id="contactTitle">ارتباط با ما</h2>
       <p class="help" id="contactText">برای ارسال پیشنهاد، گزارش خطا یا پرسش با ایمیل زیر در ارتباط باشید:</p>
-      <a class="contact-link" href="mailto:cooperx404.github@gmail.com">cooperx404.github@gmail.com</a>
+      <a class="contact-link" href="mailto:cooperx404.hithub@gmail.com">cooperx404.hithub@gmail.com</a>
     </section>
   </main>
   <footer id="footerText">موازنه‌گر واکنش‌های شیمیایی · پردازش در مرورگر شما انجام می‌شود.</footer>
@@ -293,58 +330,88 @@ function rref(matrix) {
 }
 
 function balanceEquation(raw) {
-  const normalized = raw.trim().replaceAll("→","->").replaceAll("=","->");
+  if (typeof raw !== "string" || !raw.trim()) throw new Error("واکنش را وارد کن.");
+  if (raw.length > 500) throw new Error("طول واکنش بیش از حد مجاز است.");
+  // Normalize common keyboard variants: Unicode subscripts, arrows and multiplication dots.
+  const subMap = {"₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9"};
+  let normalized = raw.trim().replace(/[₀-₉]/g, ch => subMap[ch]).replace(/[‐‑‒–—]/g, "-").replace(/→|⟶|⟹/g, "->").replace(/=/g, "->");
   if ((normalized.match(/->/g) || []).length !== 1) {
     throw new Error("واکنش باید دقیقاً یک پیکان داشته باشد؛ مثال: H2 + O2 -> H2O");
   }
   const [left,right] = normalized.split("->");
-  const reactants = left.split("+").map(x=>x.trim());
-  const products = right.split("+").map(x=>x.trim());
-  if (![...reactants,...products].every(Boolean)) throw new Error("فرمول هر دو طرف واکنش را کامل وارد کن.");
-  if (reactants.length + products.length > 12) throw new Error("حداکثر ۱۲ ماده در هر واکنش پشتیبانی می‌شود.");
-
+  // A leading coefficient is accepted as input, but recalculated by the balancer.
+  function cleanSide(side) {
+    return side.split("+").map(part => part.trim().replace(/^\s*\d+\s*/, "")).filter(Boolean);
+  }
+  const reactants = cleanSide(left);
+  const products = cleanSide(right);
+  if (!reactants.length || !products.length) throw new Error("حداقل یک ماده در هر طرف واکنش وارد کن.");
+  if (reactants.length + products.length > 16) throw new Error("حداکثر ۱۶ ماده در هر واکنش پشتیبانی می‌شود.");
   const formulas = [...reactants,...products];
   const parsed = formulas.map(parseFormula);
   const elements = [...new Set(parsed.flatMap(x=>Object.keys(x)))].sort();
+  const leftElements = new Set(parsed.slice(0,reactants.length).flatMap(x=>Object.keys(x)));
+  const rightElements = new Set(parsed.slice(reactants.length).flatMap(x=>Object.keys(x)));
+  const missingLeft = [...rightElements].filter(el=>!leftElements.has(el));
+  const missingRight = [...leftElements].filter(el=>!rightElements.has(el));
+  if (missingLeft.length || missingRight.length) {
+    const parts = [];
+    if (missingLeft.length) parts.push(`عنصر ${missingLeft.join("، ")} فقط در سمت فرآورده‌ها دیده می‌شود`);
+    if (missingRight.length) parts.push(`عنصر ${missingRight.join("، ")} فقط در سمت واکنش‌دهنده‌ها دیده می‌شود`);
+    let hint = "";
+    if (formulas.some(f => /Ho/.test(f))) hint = " اگر منظورت آب است، فرمول درست H2O است؛ Ho نماد عنصر هولمیوم است.";
+    throw new Error(parts.join(" و ") + ". فرمول‌ها یا جای مواد را بررسی کن." + hint);
+  }
   const matrix = elements.map(el => [
     ...parsed.slice(0,reactants.length).map(f=>f[el] || 0),
     ...parsed.slice(reactants.length).map(f=>-(f[el] || 0))
   ]);
-
   const {a,pivots} = rref(matrix);
   const cols = formulas.length;
   const free = Array.from({length:cols},(_,i)=>i).filter(c=>!pivots.includes(c));
-  if (free.length !== 1) {
-    throw new Error("برای این واکنش جواب یکتایی پیدا نشد؛ فرمول‌ها و مواد را بررسی کن.");
+  if (!free.length) throw new Error("برای این واکنش جواب غیرصفر پیدا نشد؛ فرمول‌ها را بررسی کن.");
+  if (free.length > 4) throw new Error("این واکنش بیش از چهار ضریب مستقل دارد و از محدوده محاسباتی این نسخه خارج است. واکنش را به چند مرحله ساده‌تر تقسیم کن.");
+
+  let best = null;
+  let visited = 0;
+  const maxNodes = 600000;
+  const maxValue = free.length === 1 ? 10000 : free.length === 2 ? 600 : free.length === 3 ? 100 : 35;
+  function evaluateFree(values) {
+    const solution = Array.from({length:cols},()=>frac(0n));
+    free.forEach((col,i) => solution[col] = frac(BigInt(values[i])));
+    pivots.forEach((p,row) => {
+      let value = frac(0n);
+      free.forEach((col,i) => { value = add(value, mul(frac(-a[row][col].n,a[row][col].d), solution[col])); });
+      solution[p] = value;
+    });
+    if (solution.some(x => x.n <= 0n)) return;
+    let commonDen = 1n;
+    for (const x of solution) commonDen = commonDen / gcd(commonDen,x.d) * x.d;
+    let coeffs = solution.map(x => x.n * (commonDen / x.d));
+    const common = coeffs.reduce((x,y)=>gcd(x,y));
+    coeffs = coeffs.map(x=>x/common);
+    const sum = coeffs.reduce((x,y)=>x+y,0n);
+    if (!best || sum < best.sum) best = {coeffs,sum};
   }
-
-  const solution = Array.from({length:cols},()=>frac(0n));
-  solution[free[0]] = frac(1n);
-  pivots.forEach((p,row) => solution[p] = frac(-a[row][free[0]].n, a[row][free[0]].d));
-
-  if (solution.every(x=>x.n<0n)) solution.forEach(x=>x.n=-x.n);
-  if (solution.some(x=>x.n<=0n)) throw new Error("ضرایب مثبت برای همه مواد پیدا نشد.");
-
-  let commonDen = 1n;
-  for (const x of solution) commonDen = commonDen / gcd(commonDen,x.d) * x.d;
-  let coeffs = solution.map(x=>x.n*(commonDen/x.d));
-  let common = coeffs.reduce((a,b)=>gcd(a,b));
-  coeffs = coeffs.map(x=>x/common);
-
+  function search(depth, values) {
+    if (visited >= maxNodes) return;
+    if (depth === free.length) { visited++; evaluateFree(values); return; }
+    for (let n=1; n<=maxValue && visited<maxNodes; n++) search(depth+1,[...values,n]);
+  }
+  search(0,[]);
+  if (!best) throw new Error("با روش محاسباتی فعلی ضرایب مثبت پیدا نشد. ممکن است فرمولی اشتباه، واکنش ناقص یا واکنش یونی/اکسایش‌کاهش وارد شده باشد. بارهای یونی و نیم‌واکنش‌ها هنوز پشتیبانی نمی‌شوند.");
+  const coeffs = best.coeffs;
   const formatSide = (items, offset) => items.map((f,i) => {
     const c = coeffs[offset+i].toString();
     return (c === "1" ? "" : c) + f;
   }).join(" + ");
-
   const balanced = formatSide(reactants,0) + " → " + formatSide(products,reactants.length);
   const atomCounts = elements.map(el => {
-    const before = parsed.slice(0,reactants.length)
-      .reduce((sum,f,i)=>sum+BigInt(f[el]||0)*coeffs[i],0n);
-    const after = parsed.slice(reactants.length)
-      .reduce((sum,f,i)=>sum+BigInt(f[el]||0)*coeffs[reactants.length+i],0n);
+    const before = parsed.slice(0,reactants.length).reduce((sum,f,i)=>sum+BigInt(f[el]||0)*coeffs[i],0n);
+    const after = parsed.slice(reactants.length).reduce((sum,f,i)=>sum+BigInt(f[el]||0)*coeffs[reactants.length+i],0n);
     return {el,before:before.toString(),after:after.toString(),ok:before===after};
   });
-  return {balanced,atomCounts};
+  return {balanced,atomCounts,formulas,coefficients:coeffs.map(String)};
 }
 
 const input = document.getElementById("equation");
@@ -359,12 +426,12 @@ let currentResult = "";
 const translations = {
   fa: {
     badge:"ابزار آنلاین شیمی", title:"موازنه‌گر واکنش‌های شیمیایی",
-    intro:"واکنش را وارد کن؛ ضرایب موازنه و تعداد اتم‌های هر عنصر را ببین.",
+    intro:"واکنش را وارد کن؛ سامانه ضرایب موازنه و تعداد اتم‌های هر عنصر را محاسبه می‌کند.",
     inputLabel:"واکنش شیمیایی", balance:"موازنه کن", examples:"نمونه‌ها:",
     resultTitle:"واکنش موازنه‌شده", placeholder:"نتیجه اینجا نمایش داده می‌شود.",
     copy:"کپی نتیجه", copied:"نتیجه کپی شد.", copyFail:"کپی خودکار ممکن نیست؛ نتیجه را دستی انتخاب کن.",
     atomTitle:"بررسی تعداد اتم‌ها", atomHelp:"بعد از موازنه، تعداد اتم‌های هر عنصر در دو طرف واکنش نمایش داده می‌شود.",
-    guideTitle:"راهنمای وارد کردن واکنش", guide:"• نماد عناصر را با حروف لاتین وارد کن؛ مثل H2O یا NaCl.<br>• بین مواد علامت + و بین دو طرف واکنش یکی از علامت‌های → ، -&gt; یا = بگذار.<br>• پرانتزهای فرمول مانند Ca(OH)2 پشتیبانی می‌شوند.<br>• بار یونی، آب‌پوش‌ها و نیم‌واکنش‌های اکسایش‌کاهش در این نسخه پشتیبانی نمی‌شوند.",
+    guideTitle:"راهنمای وارد کردن واکنش", guide:"• نماد عناصر را با حروف لاتین وارد کن؛ مثل H2O یا NaCl.<br>• بین مواد علامت + و بین دو طرف واکنش یکی از علامت‌های → ، -&gt; یا = بگذار.<br>• پرانتزهای فرمول مانند Ca(OH)2 پشتیبانی می‌شوند.<br>• بیشتر واکنش‌های معمول مولکولی پشتیبانی می‌شوند؛ بار یونی، آب‌پوش‌ها و نیم‌واکنش‌های اکسایش‌کاهش هنوز پشتیبانی نمی‌شوند.",
     footer:"موازنه‌گر واکنش‌های شیمیایی · پردازش در مرورگر شما انجام می‌شود.",
     stepsTitle:"مراحل موازنه کردن", contactTitle:"ارتباط با ما",
     contactText:"برای ارسال پیشنهاد، گزارش خطا یا پرسش با ایمیل زیر در ارتباط باشید:",
@@ -372,16 +439,18 @@ const translations = {
     steps:["<b>نوشتن معادله:</b> واکنش‌دهنده‌ها را سمت چپ و فرآورده‌ها را سمت راست پیکان بنویس.","<b>شمارش اتم‌ها:</b> تعداد اتم‌های هر عنصر را در دو طرف معادله مشخص کن.","<b>انتخاب ضرایب:</b> فقط ضریب جلوی فرمول‌ها را تغییر بده؛ هرگز زیروند فرمول را عوض نکن.","<b>موازنه مرحله‌ای:</b> از عنصری شروع کن که در ترکیب‌های کمتری حضور دارد. معمولاً هیدروژن و اکسیژن را به آخر موکول کن.","<b>ساده‌سازی:</b> ضرایب را به کوچک‌ترین اعداد صحیح تبدیل کن.","<b>بررسی نهایی:</b> تعداد اتم‌های هر عنصر را در دو طرف دوباره بشمار تا برابر باشند."],
     lessonExample:"<b>مثال:</b> برای H2 + O2 → H2O ابتدا اکسیژن را با گذاشتن ضریب 2 جلوی آب برابر می‌کنیم؛ سپس برای برابر شدن هیدروژن، ضریب 2 جلوی H2 می‌گذاریم. نتیجه: 2H2 + O2 → 2H2O.",
     success:"✓ موازنه با موفقیت انجام شد؛ تعداد اتم‌های همه عناصر برابر است.",
-    noResult:"نتیجه‌ای برای نمایش وجود ندارد.", atomWait:"پس از وارد کردن واکنش معتبر، بررسی اتم‌ها نمایش داده می‌شود."
+    noResult:"نتیجه‌ای برای نمایش وجود ندارد.", atomWait:"پس از وارد کردن واکنش معتبر، بررسی اتم‌ها نمایش داده می‌شود.",
+    historyTitle:"تاریخچه واکنش‌ها", historyEmpty:"واکنش موازنه‌شده‌ای ذخیره نشده است.", clear:"پاک کردن ورودی", details:"نمایش جزئیات حل", hideDetails:"بستن جزئیات", clearHistory:"پاک کردن تاریخچه", historyCleared:"تاریخچه پاک شد.",
+    detailIntro:"گزارش حل و کنترل نهایی:", detailCoeffs:"ضرایب به‌دست‌آمده:", detailCheck:"شمارش اتم‌ها:", loaded:"واکنش از تاریخچه بارگذاری شد."
   },
   en: {
     badge:"Chemistry tool", title:"Chemical Equation Balancer",
-    intro:"Enter a reaction to balance it and compare the atom counts on both sides.",
+    intro:"Enter a reaction to calculate balancing coefficients and compare atom counts on both sides.",
     inputLabel:"Chemical equation", balance:"Balance", examples:"Examples:",
     resultTitle:"Balanced equation", placeholder:"Your result will appear here.",
     copy:"Copy result", copied:"Result copied.", copyFail:"Automatic copy failed. Please select the result manually.",
     atomTitle:"Atom count verification", atomHelp:"After balancing, the number of atoms of each element on both sides will appear here.",
-    guideTitle:"How to enter a reaction", guide:"• Enter element symbols using Latin letters, e.g. H2O or NaCl.<br>• Separate compounds with + and the two sides with →, -&gt; or =.<br>• Parentheses such as Ca(OH)2 are supported.<br>• Ionic charges, hydrates and redox half-reactions are not supported in this version.",
+    guideTitle:"How to enter a reaction", guide:"• Enter element symbols using Latin letters, e.g. H2O or NaCl.<br>• Separate compounds with + and the two sides with →, -&gt; or =.<br>• Parentheses such as Ca(OH)2 are supported.<br>• Most common molecular reactions are supported; ionic charges, hydrates and redox half-reactions are not yet supported.",
     footer:"Chemical Equation Balancer · All calculations run in your browser.",
     stepsTitle:"Balancing steps", contactTitle:"Contact us",
     contactText:"For suggestions, bug reports or questions, email us:",
@@ -389,7 +458,9 @@ const translations = {
     steps:["<b>Write the equation:</b> Put reactants on the left and products on the right of the arrow.","<b>Count atoms:</b> Count each element on both sides.","<b>Choose coefficients:</b> Change only the numbers in front of formulas; never change subscripts.","<b>Balance step by step:</b> Start with an element appearing in fewer compounds. Usually leave hydrogen and oxygen until later.","<b>Simplify:</b> Reduce coefficients to the smallest whole numbers.","<b>Verify:</b> Recount every element on both sides; the totals must match."],
     lessonExample:"<b>Example:</b> For H2 + O2 → H2O, put 2 before water to balance oxygen. Then put 2 before H2 to balance hydrogen. Result: 2H2 + O2 → 2H2O.",
     success:"✓ Successfully balanced; atom counts match for every element.",
-    noResult:"There is no result to display.", atomWait:"Enter a valid reaction to see the atom count verification."
+    noResult:"There is no result to display.", atomWait:"Enter a valid reaction to see the atom count verification.",
+    historyTitle:"Reaction history", historyEmpty:"No balanced reactions saved yet.", clear:"Clear input", details:"Show solution details", hideDetails:"Hide details", clearHistory:"Clear history", historyCleared:"History cleared.",
+    detailIntro:"Solution report and final verification:", detailCoeffs:"Calculated coefficients:", detailCheck:"Atom count:", loaded:"Reaction loaded from history."
   }
 };
 
@@ -415,6 +486,11 @@ function setLanguage(lang) {
   document.getElementById("lessonExample").innerHTML = t.lessonExample;
   document.getElementById("contactTitle").textContent = t.contactTitle;
   document.getElementById("contactText").textContent = t.contactText;
+  document.getElementById("historyTitle").textContent = t.historyTitle;
+  document.getElementById("clearBtn").textContent = t.clear;
+  document.getElementById("detailBtn").textContent = document.getElementById("solveDetails").hidden ? t.details : t.hideDetails;
+  document.getElementById("clearHistoryBtn").textContent = t.clearHistory;
+  renderHistory();
   document.getElementById("themeBtn").textContent = document.body.classList.contains("light-theme") ? t.themeNight : t.themeDay;
   copyBtn.textContent = t.copy;
   document.getElementById("langBtn").textContent = lang === "fa" ? "English" : "فارسی";
@@ -437,13 +513,64 @@ function solve() {
     atoms.innerHTML = answer.atomCounts.map(a =>
       `<div class="atom"><b>${a.el}</b><span>${a.before} = ${a.after}</span><strong class="ok">✓</strong></div>`
     ).join("");
+    const t = translations[currentLanguage];
+    const coefficientLine = answer.formulas.map((f,i) => `${answer.coefficients[i]} × ${f}`).join("　|　");
+    const atomLines = answer.atomCounts.map(a => `${a.el}: ${a.before} = ${a.after} ✓`).join("<br>");
+    document.getElementById("solveDetails").innerHTML = `<b>${t.detailIntro}</b><br><b>${t.detailCoeffs}</b><br><span dir="ltr">${coefficientLine}</span><br><b>${t.detailCheck}</b><br>${atomLines}`;
+    document.getElementById("detailBtn").disabled = false;
+    saveHistory(input.value.trim(), answer.balanced);
     copyBtn.disabled = false;
   } catch (err) {
     result.innerHTML = `<span class="placeholder">${translations[currentLanguage].noResult}</span>`;
     atoms.innerHTML = `<p class="help">${translations[currentLanguage].atomWait}</p>`;
+    document.getElementById("detailBtn").disabled = true;
+    document.getElementById("solveDetails").hidden = true;
+    document.getElementById("detailBtn").textContent = translations[currentLanguage].details;
     errorBox.textContent = err.message || "Unknown error.";
   }
 }
+
+const HISTORY_KEY = "chem-balancer-history-v1";
+function readHistory() {
+  try { const value = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); return Array.isArray(value) ? value.filter(x => x && typeof x.input === "string" && typeof x.result === "string").slice(0,12) : []; }
+  catch { return []; }
+}
+function renderHistory() {
+  const list = document.getElementById("historyList");
+  if (!list) return;
+  const items = readHistory();
+  list.replaceChildren();
+  if (!items.length) { const li=document.createElement("li"); li.className="help"; li.textContent=translations[currentLanguage].historyEmpty; list.append(li); return; }
+  items.forEach(item => {
+    const li=document.createElement("li"); li.className="history-item";
+    const span=document.createElement("span"); span.className="history-equation"; span.textContent=item.result;
+    const button=document.createElement("button"); button.className="secondary"; button.type="button"; button.textContent=currentLanguage === "fa" ? "بارگذاری" : "Load";
+    button.addEventListener("click",()=>{input.value=item.input; solve(); status.textContent=translations[currentLanguage].loaded; window.scrollTo({top:0,behavior:"smooth"});});
+    li.append(span,button); list.append(li);
+  });
+}
+function saveHistory(original, balanced) {
+  try {
+    const items=readHistory().filter(x=>x.input!==original);
+    items.unshift({input:original,result:balanced});
+    localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,12)));
+    renderHistory();
+  } catch { /* Storage may be disabled; balancing itself remains available. */ }
+}
+document.getElementById("clearBtn").addEventListener("click",()=>{
+  input.value=""; result.innerHTML=`<span class="placeholder">${translations[currentLanguage].placeholder}</span>`;
+  status.textContent=""; errorBox.textContent=""; atoms.innerHTML=`<p class="help">${translations[currentLanguage].atomHelp}</p>`;
+  currentResult=""; copyBtn.disabled=true; document.getElementById("detailBtn").disabled=true;
+  document.getElementById("solveDetails").hidden=true;
+});
+document.getElementById("detailBtn").addEventListener("click",()=>{
+  const box=document.getElementById("solveDetails"); box.hidden=!box.hidden;
+  document.getElementById("detailBtn").textContent=translations[currentLanguage][box.hidden?"details":"hideDetails"];
+});
+document.getElementById("clearHistoryBtn").addEventListener("click",()=>{
+  try { localStorage.removeItem(HISTORY_KEY); } catch {}
+  renderHistory(); status.textContent=translations[currentLanguage].historyCleared;
+});
 
 document.getElementById("balanceBtn").addEventListener("click", solve);
 input.addEventListener("keydown", e => { if (e.key === "Enter") solve(); });
@@ -465,12 +592,14 @@ const themeBtn = document.getElementById("themeBtn");
 function setTheme(theme) {
   const isLight = theme === "light";
   document.body.classList.toggle("light-theme", isLight);
-  localStorage.setItem("chem-balancer-theme", theme);
+  try { localStorage.setItem("chem-balancer-theme", theme); } catch { /* Theme still works for this session. */ }
   themeBtn.textContent = translations[currentLanguage][isLight ? "themeNight" : "themeDay"];
   document.querySelector('meta[name="theme-color"]').content = isLight ? "#f4f1e9" : "#101014";
 }
 themeBtn.addEventListener("click", () => setTheme(document.body.classList.contains("light-theme") ? "dark" : "light"));
-setTheme(localStorage.getItem("chem-balancer-theme") || "dark");
+let savedTheme = "dark";
+try { savedTheme = localStorage.getItem("chem-balancer-theme") || "dark"; } catch { /* Use the default theme when storage is unavailable. */ }
+setTheme(savedTheme);
 setLanguage("fa");
 solve();
 </script>
