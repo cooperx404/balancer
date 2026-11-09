@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101014">
   <title>Chemical Equation Balancer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #101014;
@@ -40,9 +43,19 @@
     body {
       margin: 0; min-height: 100vh; color: var(--text);
       background: radial-gradient(ellipse at 50% -20%, var(--page-glow) 0%, var(--bg) 55%); transition: background .2s, color .2s;
-      font-family: Tahoma, Arial, sans-serif;
+      /* Vazirmatn loads when online; Windows-safe local fonts keep Persian readable offline. */
+      font-family: "Vazirmatn", Tahoma, "Segoe UI", Arial, sans-serif;
+      font-synthesis: weight;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
       display: flex; flex-direction: column;
     }
+    /* Keep every Persian UI control on the same dependable system-font stack. */
+    body, body button, body input, body textarea, body select {
+      font-family: "Vazirmatn", Tahoma, "Segoe UI", Arial, sans-serif;
+    }
+    button { font-weight: 700; }
+    .section-title, label, h1 { font-weight: 800; }
     .wrap { width: min(920px, calc(100% - 32px)); margin: 0 auto; flex: 1; }
     header { text-align: center; padding: 52px 0 28px; }
     .badge {
@@ -68,8 +81,14 @@
     button {
       border: 0; border-radius: 12px; padding: 0 22px; cursor: pointer;
       background: linear-gradient(135deg, var(--gold2), var(--gold));
-      color: #17140d; font: bold 14px Tahoma, sans-serif; transition: .2s;
+      color: #17140d; font: 700 14px "Vazirmatn", Tahoma, "Segoe UI", Arial, sans-serif; transition: .2s;
     }
+    html[lang="en"] body { font-family: "Inter", "Segoe UI", Arial, sans-serif; }
+    html[lang="en"] button { font-family: "Inter", "Segoe UI", Arial, sans-serif; }
+    h1, h2, label, .badge, .help, .status, .error, footer, p, li, a { letter-spacing: -.01em; }
+    h1 { font-weight: 800; }
+    .section-title { font-weight: 700; }
+    input { font-family: Consolas, "Courier New", monospace; }
     button:hover { filter: brightness(1.08); transform: translateY(-1px); }
     button.secondary {
       background: var(--button-muted); color: var(--text); border: 1px solid #494954;
@@ -181,7 +200,7 @@
     <section class="card">
       <h2 class="section-title" id="contactTitle">ارتباط با ما</h2>
       <p class="help" id="contactText">برای ارسال پیشنهاد، گزارش خطا یا پرسش با ایمیل زیر در ارتباط باشید:</p>
-      <a class="contact-link" href="mailto:cooperx404.hithub@gmail.com">cooperx404.hithub@gmail.com</a>
+      <a class="contact-link" href="mailto:cooperx404.github@gmail.com">cooperx404.github@gmail.com</a>
     </section>
   </main>
   <footer id="footerText">موازنه‌گر واکنش‌های شیمیایی · پردازش در مرورگر شما انجام می‌شود.</footer>
